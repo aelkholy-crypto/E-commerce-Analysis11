@@ -19,150 +19,63 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-BULK_COLOR = "#059669"
-RETAIL_COLOR = "#0284C7"
-TEXT_PRIMARY = "#0F172A"
-TEXT_SECONDARY = "#475569"
-
 def inject_ecommerce_css():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
-
         .stApp {
-            background-color: #F8FAFC !important;
-            background-image: none !important;
-            color: #0F172A;
-            font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        [data-testid="stHeader"] {
-            background-color: rgba(255, 255, 255, 0.94) !important;
-            border-bottom: 1px solid #E2E8F0;
+            background-image: url("https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2048&q=80");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #FFFFFF;
         }
         [data-testid="stSidebar"] {
-            background-color: #FFFFFF !important;
-            border-right: 1px solid #E2E8F0;
-        }
-        [data-testid="stSidebar"] * {
-            color: #0F172A;
+            background-color: rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
         }
         .glass-container {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 14px;
-            padding: 24px 26px;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 15px;
+            padding: 24px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
-            color: #0F172A;
-        }
-        .separability-card {
-            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
-            border: 1px solid #CBD5E1;
-            border-left: 5px solid #0284C7;
-            border-radius: 14px;
-            padding: 24px 28px;
-            margin-bottom: 18px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        }
-        .separability-card h3 {
-            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 1.35rem;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-            color: #0F172A !important;
-        }
-        .separability-card p {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.98rem;
-            line-height: 1.65;
-            color: #334155 !important;
-            margin-bottom: 0;
-        }
-        .separability-table-wrap [data-testid="stDataFrame"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid #CBD5E1 !important;
-            border-radius: 12px !important;
-            padding: 6px !important;
-            font-family: 'Inter', sans-serif !important;
-            font-variant-numeric: tabular-nums;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
-        }
-        .stat-pill {
-            display: inline-block;
-            background-color: #F1F5F9;
-            border: 1px solid #CBD5E1;
-            color: #0F172A !important;
-            font-weight: 600;
-            font-size: 0.92rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            margin: 4px 6px 8px 0;
-            font-variant-numeric: tabular-nums;
-        }
-        .insight-box {
-            background-color: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 18px 20px;
-            color: #0F172A;
+            color: #FFFFFF;
         }
         [data-testid="stMetric"] {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
-            padding: 16px 18px;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            padding: 16px;
         }
-        [data-testid="stMetricLabel"] {
-            color: #475569 !important;
-            font-weight: 600;
+        [data-testid="stMetricLabel"], [data-testid="stMetricValue"], [data-testid="stMetricDelta"] {
+            color: #FFFFFF !important;
         }
-        [data-testid="stMetricValue"] {
-            color: #0F172A !important;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-        [data-testid="stMetricDelta"] {
-            color: #0284C7 !important;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: #0F172A !important;
-            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-            letter-spacing: -0.015em;
-        }
-        p, li, label, span, div {
-            color: #0F172A;
-        }
-        code {
-            background-color: #F1F5F9;
-            color: #0F172A !important;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 5px;
-            font-size: 0.9em;
+        h1, h2, h3, h4, h5, h6, p, li, label, span, div {
+            color: #FFFFFF;
         }
         .stDataFrame {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.75);
+            border-radius: 10px;
+            padding: 10px;
         }
-        div.stButton > button, button[kind="formSubmit"] {
-            background: linear-gradient(90deg, #0284C7 0%, #0369A1 100%);
-            color: #FFFFFF !important;
+        div.stButton > button {
+            background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+            color: #FFFFFF;
             border: none;
             border-radius: 8px;
             padding: 0.6rem 1.5rem;
-            font-weight: 600;
+            font-weight: bold;
             width: 100%;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
-        div.stButton > button:hover, button[kind="formSubmit"]:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.28);
+        div.stButton > button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.6);
         }
         </style>
         """,
@@ -268,30 +181,14 @@ def load_rf_pipeline(_df):
         model.fit(X, y)
     return model
 
-def apply_clean_plotly(fig):
+def apply_transparent_plotly(fig):
     fig.update_layout(
-        paper_bgcolor="#FFFFFF",
-        plot_bgcolor="#FFFFFF",
-        font=dict(color=TEXT_PRIMARY, family="Inter, Plus Jakarta Sans, sans-serif"),
-        title=dict(font=dict(color=TEXT_PRIMARY, size=16)),
-        xaxis=dict(
-            gridcolor="rgba(15, 23, 42, 0.08)",
-            zerolinecolor="rgba(15, 23, 42, 0.2)",
-            tickfont=dict(color=TEXT_SECONDARY),
-            title=dict(font=dict(color=TEXT_PRIMARY)),
-        ),
-        yaxis=dict(
-            gridcolor="rgba(15, 23, 42, 0.08)",
-            zerolinecolor="rgba(15, 23, 42, 0.2)",
-            tickfont=dict(color=TEXT_SECONDARY),
-            title=dict(font=dict(color=TEXT_PRIMARY)),
-        ),
-        legend=dict(
-            bgcolor="rgba(255, 255, 255, 0.94)",
-            bordercolor="#E2E8F0",
-            borderwidth=1,
-            font=dict(color=TEXT_PRIMARY),
-        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#FFFFFF"),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.12)", zerolinecolor="rgba(255,255,255,0.2)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.12)", zerolinecolor="rgba(255,255,255,0.2)"),
+        legend=dict(bgcolor="rgba(0,0,0,0.4)", bordercolor="rgba(255,255,255,0.2)", borderwidth=1),
     )
     return fig
 
@@ -440,9 +337,9 @@ if page == "🏪 Executive Overview":
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(
-            f"""
-            <div class="glass-container" style="border-top: 4px solid {BULK_COLOR};">
-                <h3 style="color: {BULK_COLOR} !important;">🟢 Bulk / Wholesale Orders (B2B Signal)</h3>
+            """
+            <div class="glass-container">
+                <h3 style="color: #39FF14;">🟢 Bulk / Wholesale Orders (B2B Signal)</h3>
                 <ul>
                     <li><b>High Basket Volume:</b> Large unit quantities (≥ 50 units) or high basket value (≥ £500).</li>
                     <li><b>Broad SKU Diversity:</b> Orders span dozens of distinct product codes (<code>Unique_SKUs</code>) per invoice.</li>
@@ -454,9 +351,9 @@ if page == "🏪 Executive Overview":
         )
     with c2:
         st.markdown(
-            f"""
-            <div class="glass-container" style="border-top: 4px solid {RETAIL_COLOR};">
-                <h3 style="color: {RETAIL_COLOR} !important;">🔵 Individual / Retail Orders (B2C Segment)</h3>
+            """
+            <div class="glass-container">
+                <h3 style="color: #00C6FF;">🔵 Individual / Retail Orders (B2C Segment)</h3>
                 <ul>
                     <li><b>Small Unit Baskets:</b> Single-item or small household quantities (&lt; 35 units per checkout).</li>
                     <li><b>Higher Guest Checkout Share:</b> Frequently purchased without registered B2B account IDs (<code>Is_Guest = 1</code>).</li>
@@ -475,12 +372,12 @@ elif page == "📊 Strategic Analytics":
 
     st.markdown(
         """
-        <div class="separability-card">
+        <div class="glass-container">
             <h3>📐 Statistical Feature Separability Ranking</h3>
             <p>
-                Quantifying distribution divergence and central-tendency shifts between <b>Bulk / Wholesale (B2B)</b> and 
-                <b>Individual / Retail (B2C)</b> orders using the two-sample <b>Kolmogorov-Smirnov (KS) Statistic</b>, 
-                <b>Kullback-Leibler (KL) Divergence</b>, and <b>Jensen-Shannon Divergence (JSD)</b>.
+                Measuring distribution divergence between <b>Bulk / Wholesale (B2B)</b> and <b>Individual / Retail (B2C)</b> orders 
+                using the two-sample <b>Kolmogorov-Smirnov (KS) Statistic</b>, <b>Kullback-Leibler (KL) Divergence</b>, 
+                and <b>Jensen-Shannon Divergence (JSD)</b>.
             </p>
         </div>
         """,
@@ -497,10 +394,9 @@ elif page == "📊 Strategic Analytics":
     target_eval_features = key_features if eval_scope.startswith("Core") else FEATURE_COLS
 
     sep_df = compute_separability_metrics(df, target_eval_features)
-    st.markdown('<div class="separability-table-wrap">', unsafe_allow_html=True)
     st.dataframe(
         sep_df,
-        width="stretch",
+        use_container_width=True,
         column_config={
             "KS Statistic": st.column_config.NumberColumn(format="%.4f"),
             "KS p-value": st.column_config.NumberColumn(format="%.2e"),
@@ -509,11 +405,10 @@ elif page == "📊 Strategic Analytics":
             "Mean Ratio (B/R)": st.column_config.NumberColumn(format="%.2fx"),
         },
     )
-    st.markdown("</div>", unsafe_allow_html=True)
 
     with st.expander("📋 Detailed Segment & Temporal Comparisons (Mean, IQR, Market, Guest & Time)"):
         comp_df = build_segment_comparison_table(df, target_eval_features)
-        st.dataframe(comp_df, width="stretch")
+        st.dataframe(comp_df, use_container_width=True)
 
         cat_col1, cat_col2 = st.columns(2)
         with cat_col1:
@@ -523,11 +418,11 @@ elif page == "📊 Strategic Analytics":
                 y=uk_by_seg.values,
                 labels={"x": "Segment", "y": "UK Share (%)"},
                 color=uk_by_seg.index,
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title="UK Order Share by Segment (%)",
             )
             fig_uk.update_layout(showlegend=False, height=300)
-            st.plotly_chart(apply_clean_plotly(fig_uk), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_uk), use_container_width=True)
 
         with cat_col2:
             guest_by_seg = (df.groupby("Segment")["Is_Guest"].mean() * 100).round(1)
@@ -536,11 +431,11 @@ elif page == "📊 Strategic Analytics":
                 y=guest_by_seg.values,
                 labels={"x": "Segment", "y": "Guest Checkout Share (%)"},
                 color=guest_by_seg.index,
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title="Guest Checkout Share by Segment (%)",
             )
             fig_guest.update_layout(showlegend=False, height=300)
-            st.plotly_chart(apply_clean_plotly(fig_guest), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_guest), use_container_width=True)
 
         time_col1, time_col2 = st.columns(2)
         with time_col1:
@@ -562,11 +457,11 @@ elif page == "📊 Strategic Analytics":
                 color="Segment",
                 markers=True,
                 labels={"DayLabel": "Day of Week", "SharePct": "Share of Segment Orders (%)"},
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title="Weekly Order Pattern by Segment (%)",
             )
             fig_dow.update_layout(height=320)
-            st.plotly_chart(apply_clean_plotly(fig_dow), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_dow), use_container_width=True)
 
         with time_col2:
             m_df = df.copy()
@@ -587,11 +482,11 @@ elif page == "📊 Strategic Analytics":
                 color="Segment",
                 barmode="group",
                 labels={"MonthLabel": "Month", "SharePct": "Share of Segment Orders (%)"},
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title="Monthly Seasonality Comparison by Segment (%)",
             )
             fig_m.update_layout(height=320)
-            st.plotly_chart(apply_clean_plotly(fig_m), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_m), use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -623,7 +518,7 @@ elif page == "📊 Strategic Analytics":
             title="Feature Correlation Heatmap",
         )
         fig_corr.update_layout(height=450)
-        st.plotly_chart(apply_clean_plotly(fig_corr), width="stretch")
+        st.plotly_chart(apply_transparent_plotly(fig_corr), use_container_width=True)
 
     with rel_col2:
         scale_mode = st.radio(
@@ -646,12 +541,12 @@ elif page == "📊 Strategic Analytics":
             log_y=scale_mode.startswith("Log"),
             size_max=22,
             opacity=0.72,
-            color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+            color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
             hover_data=["Hour", "DayOfWeek", "Month", "Is_UK", "Is_Guest"],
             title="Quantity vs. UnitPrice (Bubble Size = Unique_SKUs)",
         )
         fig_scatter.update_layout(height=400)
-        st.plotly_chart(apply_clean_plotly(fig_scatter), width="stretch")
+        st.plotly_chart(apply_transparent_plotly(fig_scatter), use_container_width=True)
 
     imp_col, hourly_col = st.columns([1, 1.25])
 
@@ -670,7 +565,7 @@ elif page == "📊 Strategic Analytics":
             color_continuous_scale="Blues",
         )
         fig_imp.update_layout(showlegend=False, coloraxis_showscale=False, height=360)
-        st.plotly_chart(apply_clean_plotly(fig_imp), width="stretch")
+        st.plotly_chart(apply_transparent_plotly(fig_imp), use_container_width=True)
 
     with hourly_col:
         hourly_feat = st.selectbox(
@@ -691,11 +586,11 @@ elif page == "📊 Strategic Analytics":
                 y=hourly_feat,
                 color="Segment",
                 markers=True,
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title=f"Hourly Mean of {hourly_feat} by Segment",
             )
             fig_hr.update_layout(height=360)
-            st.plotly_chart(apply_clean_plotly(fig_hr), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_hr), use_container_width=True)
 
     with st.expander("🧩 Pairwise Scatter Matrix Across Core Features (Quantity, Unique_SKUs, UnitPrice, Hour)"):
         try:
@@ -709,12 +604,12 @@ elif page == "📊 Strategic Analytics":
                 dimensions=key_features,
                 color="Segment",
                 opacity=0.65,
-                color_discrete_map={"Bulk / Wholesale": BULK_COLOR, "Individual / Retail": RETAIL_COLOR},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
                 title="Pairwise Feature Scatter Matrix by Segment",
             )
             fig_splom.update_traces(diagonal_visible=False, marker=dict(size=4))
             fig_splom.update_layout(height=680)
-            st.plotly_chart(apply_clean_plotly(fig_splom), width="stretch")
+            st.plotly_chart(apply_transparent_plotly(fig_splom), use_container_width=True)
         except Exception as exc:
             st.warning(f"Unable to display scatter matrix: {exc}")
 
@@ -730,16 +625,16 @@ elif page == "📊 Strategic Analytics":
 
     shap_narratives = {
         "Quantity": (
-            "Total item volume per invoice. Orders exceeding <b>50 units</b> strongly push Random Forest predictions toward <b>Bulk / Wholesale</b>, reflecting commercial restocking behavior versus single-digit retail baskets."
+            "Total item volume per invoice. Orders exceeding **50 units** strongly push Random Forest predictions toward **Bulk / Wholesale**, reflecting commercial restocking behavior versus single-digit retail baskets."
         ),
         "Unique_SKUs": (
-            "Number of distinct products in a single basket. Wholesale buyers bundle wide assortments (<b>15+ SKUs</b>), whereas individual shoppers typically purchase 1 to 8 specific items."
+            "Number of distinct products in a single basket. Wholesale buyers bundle wide assortments (**15+ SKUs**), whereas individual shoppers typically purchase 1 to 8 specific items."
         ),
         "UnitPrice": (
             "Average item price in GBP (£). Interacts non-linearly with Quantity: high unit prices combined with moderate quantities push baskets over the £500 wholesale value threshold."
         ),
         "Hour": (
-            "Hour of invoice generation (24h). Commercial B2B orders cluster sharply during standard office hours (<b>09:00–16:00</b>), while evening checkouts shift attribution toward <b>Individual / Retail</b>."
+            "Hour of invoice generation (24h). Commercial B2B orders cluster sharply during standard office hours (**09:00–16:00**), while evening checkouts shift attribution toward **Individual / Retail**."
         ),
     }
 
@@ -762,8 +657,8 @@ elif page == "📊 Strategic Analytics":
                     box=True,
                     points=False,
                     color_discrete_map={
-                        "Bulk / Wholesale": BULK_COLOR,
-                        "Individual / Retail": RETAIL_COLOR,
+                        "Bulk / Wholesale": "#39FF14",
+                        "Individual / Retail": "#00C6FF",
                     },
                     title=f"{feat} Distribution by Buyer Segment (Violin)",
                 )
@@ -775,7 +670,7 @@ elif page == "📊 Strategic Analytics":
                         fig = ff.create_distplot(
                             [b_vals, r_vals],
                             group_labels=["Bulk / Wholesale", "Individual / Retail"],
-                            colors=[BULK_COLOR, RETAIL_COLOR],
+                            colors=["#39FF14", "#00C6FF"],
                             show_hist=False,
                             show_rug=False,
                         )
@@ -794,34 +689,23 @@ elif page == "📊 Strategic Analytics":
                         barmode="overlay",
                         opacity=0.65,
                         color_discrete_map={
-                            "Bulk / Wholesale": BULK_COLOR,
-                            "Individual / Retail": RETAIL_COLOR,
+                            "Bulk / Wholesale": "#39FF14",
+                            "Individual / Retail": "#00C6FF",
                         },
                         title=f"{feat} Distribution Histogram (Fallback)",
                     )
-            fig = apply_clean_plotly(fig)
-            st.plotly_chart(fig, width="stretch")
+            fig = apply_transparent_plotly(fig)
+            st.plotly_chart(fig, use_container_width=True)
 
         with insight_col:
             imp_pct = importances.get(feat, 0.0) * 100
             b_med_val = df[df["Is_Bulk"] == 1][feat].median()
             r_med_val = df[df["Is_Bulk"] == 0][feat].median()
-            st.markdown(
-                f"""
-                <div class="insight-box">
-                    <h3 style="margin-top:0;">🧠 Model Attribution: <code>{feat}</code></h3>
-                    <div>
-                        <span class="stat-pill">RF Importance: {imp_pct:.2f}%</span><br>
-                        <span class="stat-pill">Bulk Median: {b_med_val:.2f}</span>
-                        <span class="stat-pill">Retail Median: {r_med_val:.2f}</span>
-                    </div>
-                    <hr style="border-color:#E2E8F0; margin:12px 0;">
-                    <p style="margin-bottom:6px; font-weight:700; color:#0F172A;">SHAP-Style Impact Analysis</p>
-                    <p style="margin-bottom:0; color:#1E293B; line-height:1.6;">{shap_narratives[feat]}</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.markdown(f"### 🧠 Model Attribution: `{feat}`")
+            st.markdown(f"**Random Forest Importance:** `{imp_pct:.2f}%`")
+            st.markdown(f"**Median Comparison:** Bulk `{b_med_val:.2f}` vs. Retail `{r_med_val:.2f}`")
+            st.markdown("---")
+            st.markdown(f"**SHAP-Style Impact Analysis:**\n\n{shap_narratives[feat]}")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -872,21 +756,21 @@ elif page == "📊 Strategic Analytics":
                     y=grid_y,
                     z=zz,
                     colorscale=[
-                        [0.0, "rgba(2, 132, 199, 0.22)"],
-                        [0.5, "rgba(241, 245, 249, 0.35)"],
-                        [1.0, "rgba(5, 150, 105, 0.25)"],
+                        [0.0, "rgba(0, 198, 255, 0.35)"],
+                        [0.5, "rgba(255, 255, 255, 0.10)"],
+                        [1.0, "rgba(57, 255, 20, 0.35)"],
                     ],
                     contours=dict(start=0.0, end=1.0, size=0.1, showlines=True),
                     colorbar=dict(
-                        title=dict(text="P(Bulk)", font=dict(color=TEXT_PRIMARY)),
-                        tickfont=dict(color=TEXT_PRIMARY),
+                        title=dict(text="P(Bulk)", font=dict(color="#FFFFFF")),
+                        tickfont=dict(color="#FFFFFF"),
                     ),
                     name="Decision Boundary",
                     hoverinfo="skip",
                 )
             )
 
-            for label_name, color_hex in [("Bulk / Wholesale", BULK_COLOR), ("Individual / Retail", RETAIL_COLOR)]:
+            for label_name, color_hex in [("Bulk / Wholesale", "#39FF14"), ("Individual / Retail", "#00C6FF")]:
                 sub = sample_df[sample_df["Segment"] == label_name]
                 fig_pca.add_trace(
                     go.Scatter(
@@ -894,7 +778,7 @@ elif page == "📊 Strategic Analytics":
                         y=sub["PC2"],
                         mode="markers",
                         name=label_name,
-                        marker=dict(color=color_hex, size=6, opacity=0.8, line=dict(width=0.6, color="#FFFFFF")),
+                        marker=dict(color=color_hex, size=6, opacity=0.75, line=dict(width=0.5, color="#000000")),
                     )
                 )
 
@@ -905,8 +789,8 @@ elif page == "📊 Strategic Analytics":
                 yaxis_title=f"Principal Component 2 ({var_exp[1]:.1f}%)",
                 height=600,
             )
-            fig_pca = apply_clean_plotly(fig_pca)
-            st.plotly_chart(fig_pca, width="stretch")
+            fig_pca = apply_transparent_plotly(fig_pca)
+            st.plotly_chart(fig_pca, use_container_width=True)
     except Exception as exc:
         st.error(f"Unable to render PCA decision boundary plot: {exc}")
 
@@ -965,7 +849,7 @@ elif page == "🤖 Order Classifier":
         is_bulk = pred_class == 1
         confidence = probs[1] * 100 if is_bulk else probs[0] * 100
         result_title = "BULK / WHOLESALE (B2B)" if is_bulk else "INDIVIDUAL / RETAIL (B2C)"
-        result_color = BULK_COLOR if is_bulk else RETAIL_COLOR
+        result_color = "#39FF14" if is_bulk else "#00C6FF"
         est_revenue = quantity * unit_price
 
         res_col1, res_col2 = st.columns([1, 1])
@@ -975,8 +859,8 @@ elif page == "🤖 Order Classifier":
                 f"""
                 <div class="glass-container" style="border: 2px solid {result_color}; text-align: center; padding: 40px 20px;">
                     <h4>Order Classification Verdict</h4>
-                    <h1 style="color: {result_color} !important; font-size: 2.2rem; margin: 15px 0;">{result_title}</h1>
-                    <p style="font-size: 1.1rem; color: #0F172A;">
+                    <h1 style="color: {result_color}; font-size: 2.2rem; margin: 15px 0;">{result_title}</h1>
+                    <p style="font-size: 1.1rem;">
                         Estimated Basket Value: <b>£{est_revenue:,.2f}</b><br>
                         Bulk Probability: <b>{probs[1]*100:.2f}%</b> &nbsp;|&nbsp; 
                         Retail Probability: <b>{probs[0]*100:.2f}%</b>
@@ -991,22 +875,22 @@ elif page == "🤖 Order Classifier":
                 go.Indicator(
                     mode="gauge+number",
                     value=confidence,
-                    number={"suffix": "%", "font": {"color": TEXT_PRIMARY, "size": 44}},
-                    title={"text": "Prediction Confidence", "font": {"color": TEXT_PRIMARY, "size": 20}},
+                    number={"suffix": "%", "font": {"color": "#FFFFFF", "size": 44}},
+                    title={"text": "Prediction Confidence", "font": {"color": "#FFFFFF", "size": 20}},
                     gauge={
-                        "axis": {"range": [0, 100], "tickcolor": TEXT_PRIMARY, "tickfont": {"color": TEXT_PRIMARY}},
+                        "axis": {"range": [0, 100], "tickcolor": "#FFFFFF", "tickfont": {"color": "#FFFFFF"}},
                         "bar": {"color": result_color},
-                        "bgcolor": "#F1F5F9",
+                        "bgcolor": "rgba(255, 255, 255, 0.1)",
                         "borderwidth": 2,
-                        "bordercolor": "#CBD5E1",
+                        "bordercolor": "rgba(255, 255, 255, 0.3)",
                         "steps": [
-                            {"range": [0, 50], "color": "#FFFFFF"},
-                            {"range": [50, 80], "color": "#E2E8F0"},
-                            {"range": [80, 100], "color": "#CBD5E1"},
+                            {"range": [0, 50], "color": "rgba(255, 255, 255, 0.05)"},
+                            {"range": [50, 80], "color": "rgba(255, 255, 255, 0.12)"},
+                            {"range": [80, 100], "color": "rgba(255, 255, 255, 0.20)"},
                         ],
                     },
                 )
             )
             fig_gauge.update_layout(height=320, margin=dict(l=20, r=20, t=50, b=20))
-            fig_gauge = apply_clean_plotly(fig_gauge)
-            st.plotly_chart(fig_gauge, width="stretch")
+            fig_gauge = apply_transparent_plotly(fig_gauge)
+            st.plotly_chart(fig_gauge, use_container_width=True)

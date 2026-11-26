@@ -528,20 +528,19 @@ def share_table(df: pd.DataFrame, col: str, labels: dict) -> pd.DataFrame:
 def fig_bulk_heatmap(df: pd.DataFrame) -> go.Figure:
     pv = (df.pivot_table(index="DayOfWeek", columns="Hour", values="Is_Bulk", aggfunc="mean") * 100)
     pv = pv.reindex(range(7)).rename(index=DAY_NAMES)
-    overall = float(df["Is_Bulk"].mean() * 100)
-    soft_blue_red = [
-        [0.0, "#2F6DB5"],
-        [0.25, "#7FA8D6"],
-        [0.5, "#E9E6E1"],
-        [0.75, "#E39A86"],
-        [1.0, "#C2453A"],
+    calm_scale = [
+        [0.0, "#24445C"],
+        [0.3, "#2F7A87"],
+        [0.6, "#6FB7A4"],
+        [0.85, "#C9DDA8"],
+        [1.0, "#F3E2A9"],
     ]
     fig = px.imshow(
-        pv, aspect="auto", color_continuous_scale=soft_blue_red, color_continuous_midpoint=overall,
-        text_auto=".0f", labels=dict(x="Hour of day", y="Day", color="% Bulk"),
-        title=f"When do Bulk orders happen? (% of orders that are Bulk; neutral = overall {overall:.0f}%)",
+        pv, aspect="auto", color_continuous_scale=calm_scale, text_auto=".0f",
+        labels=dict(x="Hour of day", y="Day", color="% Bulk"),
+        title="When do Bulk orders happen? (% of orders that are Bulk)",
     )
-    fig.update_traces(xgap=2, ygap=2, textfont=dict(size=11, color="#1B1B1B"),
+    fig.update_traces(xgap=2, ygap=2,
                       hovertemplate="Day: %{y}<br>Hour: %{x}:00<br>Bulk share: %{z:.1f}%<extra></extra>")
     fig.update_xaxes(dtick=1, side="bottom")
     fig.update_coloraxes(colorbar=dict(ticksuffix="%", title=dict(text="% Bulk")))

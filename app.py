@@ -23,12 +23,15 @@ def inject_ecommerce_css():
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         .stApp {
             background-image: url("https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2048&q=80");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: #FFFFFF;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         [data-testid="stSidebar"] {
             background-color: rgba(0, 0, 0, 0.85) !important;
@@ -44,6 +47,41 @@ def inject_ecommerce_css():
             padding: 24px;
             margin-bottom: 20px;
             color: #FFFFFF;
+        }
+        .separability-card {
+            background: linear-gradient(135deg, rgba(12, 18, 32, 0.92) 0%, rgba(20, 30, 52, 0.88) 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 198, 255, 0.28);
+            border-left: 4px solid #00C6FF;
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+        .separability-card h3 {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-weight: 700;
+            font-size: 1.35rem;
+            letter-spacing: -0.015em;
+            margin-bottom: 8px;
+            color: #F8FAFC;
+        }
+        .separability-card p {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: 0.98rem;
+            line-height: 1.65;
+            color: #CBD5E1;
+            margin-bottom: 0;
+        }
+        .separability-table-wrap [data-testid="stDataFrame"] {
+            background: rgba(10, 15, 26, 0.9) !important;
+            border: 1px solid rgba(148, 163, 184, 0.22) !important;
+            border-radius: 14px !important;
+            padding: 8px !important;
+            font-family: 'Inter', 'Segoe UI', sans-serif !important;
+            font-variant-numeric: tabular-nums;
         }
         [data-testid="stMetric"] {
             background-color: rgba(0, 0, 0, 0.75);
@@ -88,6 +126,14 @@ FEATURE_COLS = [
     "Quantity", "UnitPrice", "Is_UK", "Is_Guest",
     "Hour", "DayOfWeek", "Month", "Unique_SKUs"
 ]
+
+DAY_NAMES = {
+    0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"
+}
+MONTH_NAMES = {
+    1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+    7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+}
 
 @st.cache_data
 def load_ecommerce_data():
@@ -177,10 +223,10 @@ def apply_transparent_plotly(fig):
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#FFFFFF"),
+        font=dict(color="#FFFFFF", family="Inter, Segoe UI, sans-serif"),
         xaxis=dict(gridcolor="rgba(255,255,255,0.12)", zerolinecolor="rgba(255,255,255,0.2)"),
         yaxis=dict(gridcolor="rgba(255,255,255,0.12)", zerolinecolor="rgba(255,255,255,0.2)"),
-        legend=dict(bgcolor="rgba(0,0,0,0.4)", bordercolor="rgba(255,255,255,0.2)", borderwidth=1),
+        legend=dict(bgcolor="rgba(0,0,0,0.45)", bordercolor="rgba(255,255,255,0.2)", borderwidth=1),
     )
     return fig
 
@@ -190,19 +236,40 @@ def compute_separability_metrics(df, target_features):
     results = []
 
     for feat in target_features:
-        b_vals = bulk_df[feat].dropna().values
-        r_vals = retail_df[feat].dropna().values
+        if feat not in df.columns:
+            continue
+        b_vals = pd.to_numeric(bulk_df[feat], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna().values
+        r_vals = pd.to_numeric(retail_df[feat], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna().values
+
+        if len(b_vals) == 0 or len(r_vals) == 0:
+            results.append({
+                "Feature": feat,
+                "Bulk Median": np.nan,
+                "Retail Median": np.nan,
+                "Mean Ratio (B/R)": np.nan,
+                "KS Statistic": np.nan,
+                "KS p-value": np.nan,
+                "KL Divergence (B||R)": np.nan,
+                "JS Divergence": np.nan,
+                "Separability Power": "Insufficient Data",
+            })
+            continue
 
         ks_stat, p_val = ks_2samp(b_vals, r_vals)
 
-        bins = np.histogram_bin_edges(np.concatenate([b_vals, r_vals]), bins=30)
-        p_hist, _ = np.histogram(b_vals, bins=bins, density=True)
-        q_hist, _ = np.histogram(r_vals, bins=bins, density=True)
+        combined = np.concatenate([b_vals, r_vals])
+        if np.min(combined) == np.max(combined):
+            kl_div = 0.0
+            js_div = 0.0
+        else:
+            bins = np.histogram_bin_edges(combined, bins=30)
+            p_hist, _ = np.histogram(b_vals, bins=bins, density=True)
+            q_hist, _ = np.histogram(r_vals, bins=bins, density=True)
 
-        p_prob = (p_hist + 1e-10) / np.sum(p_hist + 1e-10)
-        q_prob = (q_hist + 1e-10) / np.sum(q_hist + 1e-10)
-        kl_div = float(entropy(p_prob, q_prob))
-        js_div = float(jensenshannon(p_prob, q_prob, base=2.0) ** 2)
+            p_prob = (p_hist + 1e-10) / np.sum(p_hist + 1e-10)
+            q_prob = (q_hist + 1e-10) / np.sum(q_hist + 1e-10)
+            kl_div = float(entropy(p_prob, q_prob))
+            js_div = float(jensenshannon(p_prob, q_prob, base=2.0) ** 2)
 
         b_med = float(np.median(b_vals))
         r_med = float(np.median(r_vals))
@@ -222,7 +289,13 @@ def compute_separability_metrics(df, target_features):
             "Separability Power": "High" if ks_stat > 0.35 else ("Moderate" if ks_stat > 0.2 else "Low"),
         })
 
-    res_df = pd.DataFrame(results).sort_values(by="KS Statistic", ascending=False).reset_index(drop=True)
+    if not results:
+        return pd.DataFrame(columns=[
+            "Feature", "Bulk Median", "Retail Median", "Mean Ratio (B/R)",
+            "KS Statistic", "KS p-value", "KL Divergence (B||R)", "JS Divergence", "Separability Power"
+        ])
+
+    res_df = pd.DataFrame(results).sort_values(by="KS Statistic", ascending=False, na_position="last").reset_index(drop=True)
     res_df.index += 1
     res_df.index.name = "Rank"
     return res_df
@@ -232,8 +305,12 @@ def build_segment_comparison_table(df, features):
     bulk_df = df[df["Is_Bulk"] == 1]
     retail_df = df[df["Is_Bulk"] == 0]
     for feat in features:
-        b = bulk_df[feat].dropna()
-        r = retail_df[feat].dropna()
+        if feat not in df.columns:
+            continue
+        b = pd.to_numeric(bulk_df[feat], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+        r = pd.to_numeric(retail_df[feat], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+        if len(b) == 0 or len(r) == 0:
+            continue
         rows.append({
             "Feature": feat,
             "Bulk Mean": round(float(b.mean()), 2),
@@ -333,8 +410,8 @@ elif page == "📊 Strategic Analytics":
 
     st.markdown(
         """
-        <div class="glass-container">
-            <h3>📐 Statistical Feature Separability & Segment Comparison</h3>
+        <div class="separability-card">
+            <h3>📐 Statistical Feature Separability Ranking</h3>
             <p>
                 Quantifying distribution divergence and central-tendency shifts between <b>Bulk / Wholesale (B2B)</b> and 
                 <b>Individual / Retail (B2C)</b> orders using the two-sample <b>Kolmogorov-Smirnov (KS) Statistic</b>, 
@@ -345,7 +422,7 @@ elif page == "📊 Strategic Analytics":
         unsafe_allow_html=True,
     )
 
-    scope_col1, scope_col2 = st.columns([2, 1])
+    scope_col1, _ = st.columns([2, 1])
     with scope_col1:
         eval_scope = st.radio(
             "Feature Evaluation Scope:",
@@ -355,9 +432,10 @@ elif page == "📊 Strategic Analytics":
     target_eval_features = key_features if eval_scope.startswith("Core") else FEATURE_COLS
 
     sep_df = compute_separability_metrics(df, target_eval_features)
+    st.markdown('<div class="separability-table-wrap">', unsafe_allow_html=True)
     st.dataframe(
         sep_df,
-        use_container_width=True,
+        width="stretch",
         column_config={
             "KS Statistic": st.column_config.NumberColumn(format="%.4f"),
             "KS p-value": st.column_config.NumberColumn(format="%.2e"),
@@ -366,12 +444,12 @@ elif page == "📊 Strategic Analytics":
             "Mean Ratio (B/R)": st.column_config.NumberColumn(format="%.2fx"),
         },
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    with st.expander("📋 Detailed Segment Comparison (Mean & Interquartile Range IQR)"):
+    with st.expander("📋 Detailed Segment & Temporal Comparisons (Mean, IQR, Market, Guest & Time)"):
         comp_df = build_segment_comparison_table(df, target_eval_features)
-        st.dataframe(comp_df, use_container_width=True)
+        st.dataframe(comp_df, width="stretch")
 
-        # المقارنة الفئوية السريعة لـ Is_UK و Is_Guest
         cat_col1, cat_col2 = st.columns(2)
         with cat_col1:
             uk_by_seg = (df.groupby("Segment")["Is_UK"].mean() * 100).round(1)
@@ -384,7 +462,7 @@ elif page == "📊 Strategic Analytics":
                 title="UK Order Share by Segment (%)",
             )
             fig_uk.update_layout(showlegend=False, height=300)
-            st.plotly_chart(apply_transparent_plotly(fig_uk), use_container_width=True)
+            st.plotly_chart(apply_transparent_plotly(fig_uk), width="stretch")
 
         with cat_col2:
             guest_by_seg = (df.groupby("Segment")["Is_Guest"].mean() * 100).round(1)
@@ -397,7 +475,58 @@ elif page == "📊 Strategic Analytics":
                 title="Guest Checkout Share by Segment (%)",
             )
             fig_guest.update_layout(showlegend=False, height=300)
-            st.plotly_chart(apply_transparent_plotly(fig_guest), use_container_width=True)
+            st.plotly_chart(apply_transparent_plotly(fig_guest), width="stretch")
+
+        time_col1, time_col2 = st.columns(2)
+        with time_col1:
+            dow_df = df.copy()
+            dow_df["DayLabel"] = dow_df["DayOfWeek"].map(DAY_NAMES)
+            dow_shares = (
+                dow_df.groupby(["Segment", "DayOfWeek", "DayLabel"])
+                .size()
+                .reset_index(name="Orders")
+            )
+            dow_shares["SharePct"] = (
+                dow_shares["Orders"] / dow_shares.groupby("Segment")["Orders"].transform("sum") * 100
+            ).round(1)
+            dow_shares = dow_shares.sort_values("DayOfWeek")
+            fig_dow = px.line(
+                dow_shares,
+                x="DayLabel",
+                y="SharePct",
+                color="Segment",
+                markers=True,
+                labels={"DayLabel": "Day of Week", "SharePct": "Share of Segment Orders (%)"},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
+                title="Weekly Order Pattern by Segment (%)",
+            )
+            fig_dow.update_layout(height=320)
+            st.plotly_chart(apply_transparent_plotly(fig_dow), width="stretch")
+
+        with time_col2:
+            m_df = df.copy()
+            m_df["MonthLabel"] = m_df["Month"].map(MONTH_NAMES)
+            m_shares = (
+                m_df.groupby(["Segment", "Month", "MonthLabel"])
+                .size()
+                .reset_index(name="Orders")
+            )
+            m_shares["SharePct"] = (
+                m_shares["Orders"] / m_shares.groupby("Segment")["Orders"].transform("sum") * 100
+            ).round(1)
+            m_shares = m_shares.sort_values("Month")
+            fig_m = px.bar(
+                m_shares,
+                x="MonthLabel",
+                y="SharePct",
+                color="Segment",
+                barmode="group",
+                labels={"MonthLabel": "Month", "SharePct": "Share of Segment Orders (%)"},
+                color_discrete_map={"Bulk / Wholesale": "#39FF14", "Individual / Retail": "#00C6FF"},
+                title="Monthly Seasonality Comparison by Segment (%)",
+            )
+            fig_m.update_layout(height=320)
+            st.plotly_chart(apply_transparent_plotly(fig_m), width="stretch")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -449,22 +578,39 @@ elif page == "📊 Strategic Analytics":
                     title=f"{feat} Distribution by Buyer Segment (Violin)",
                 )
             else:
-                b_vals = plot_df[plot_df["Is_Bulk"] == 1][feat].dropna().values
-                r_vals = plot_df[plot_df["Is_Bulk"] == 0][feat].dropna().values
-                fig = ff.create_distplot(
-                    [b_vals, r_vals],
-                    group_labels=["Bulk / Wholesale", "Individual / Retail"],
-                    colors=["#39FF14", "#00C6FF"],
-                    show_hist=False,
-                    show_rug=False,
-                )
-                fig.update_layout(
-                    title=f"{feat} Kernel Density Estimate (KDE)",
-                    xaxis_title=feat,
-                    yaxis_title="Density",
-                )
+                b_vals = pd.to_numeric(plot_df[plot_df["Is_Bulk"] == 1][feat], errors="coerce").dropna().values
+                r_vals = pd.to_numeric(plot_df[plot_df["Is_Bulk"] == 0][feat], errors="coerce").dropna().values
+                try:
+                    if len(b_vals) > 1 and len(r_vals) > 1 and np.std(b_vals) > 0 and np.std(r_vals) > 0:
+                        fig = ff.create_distplot(
+                            [b_vals, r_vals],
+                            group_labels=["Bulk / Wholesale", "Individual / Retail"],
+                            colors=["#39FF14", "#00C6FF"],
+                            show_hist=False,
+                            show_rug=False,
+                        )
+                        fig.update_layout(
+                            title=f"{feat} Kernel Density Estimate (KDE)",
+                            xaxis_title=feat,
+                            yaxis_title="Density",
+                        )
+                    else:
+                        raise ValueError("Insufficient variance for KDE")
+                except Exception:
+                    fig = px.histogram(
+                        plot_df,
+                        x=feat,
+                        color="Segment",
+                        barmode="overlay",
+                        opacity=0.65,
+                        color_discrete_map={
+                            "Bulk / Wholesale": "#39FF14",
+                            "Individual / Retail": "#00C6FF",
+                        },
+                        title=f"{feat} Distribution Histogram (Fallback)",
+                    )
             fig = apply_transparent_plotly(fig)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         with insight_col:
             imp_pct = importances.get(feat, 0.0) * 100
@@ -491,59 +637,77 @@ elif page == "📊 Strategic Analytics":
         unsafe_allow_html=True,
     )
 
-    sample_df = df.sample(n=min(2500, len(df)), random_state=42)
-    scaler_pca = StandardScaler()
-    X_scaled = scaler_pca.fit_transform(sample_df[FEATURE_COLS])
+    try:
+        valid_pca_df = df.dropna(subset=FEATURE_COLS).copy()
+        if len(valid_pca_df) < 5:
+            st.warning("Not enough valid rows to compute 2D PCA projection.")
+        else:
+            sample_df = valid_pca_df.sample(n=min(2500, len(valid_pca_df)), random_state=42).copy()
+            scaler_pca = StandardScaler()
+            X_scaled = scaler_pca.fit_transform(sample_df[FEATURE_COLS])
 
-    pca = PCA(n_components=2, random_state=42)
-    pcs = pca.fit_transform(X_scaled)
-    sample_df = sample_df.copy()
-    sample_df["PC1"] = pcs[:, 0]
-    sample_df["PC2"] = pcs[:, 1]
+            pca = PCA(n_components=2, random_state=42)
+            pcs = pca.fit_transform(X_scaled)
+            sample_df["PC1"] = pcs[:, 0]
+            sample_df["PC2"] = pcs[:, 1]
 
-    grid_x = np.linspace(sample_df["PC1"].min() - 0.5, sample_df["PC1"].max() + 0.5, 60)
-    grid_y = np.linspace(sample_df["PC2"].min() - 0.5, sample_df["PC2"].max() + 0.5, 60)
-    xx, yy = np.meshgrid(grid_x, grid_y)
-    grid_2d = np.c_[xx.ravel(), yy.ravel()]
-    grid_8d = scaler_pca.inverse_transform(pca.inverse_transform(grid_2d))
-    grid_df = pd.DataFrame(grid_8d, columns=FEATURE_COLS)
-    zz = rf_pipeline.predict_proba(grid_df)[:, 1].reshape(xx.shape)
+            x_min, x_max = float(sample_df["PC1"].min()), float(sample_df["PC1"].max())
+            y_min, y_max = float(sample_df["PC2"].min()), float(sample_df["PC2"].max())
+            pad_x = max((x_max - x_min) * 0.08, 0.5)
+            pad_y = max((y_max - y_min) * 0.08, 0.5)
 
-    fig_pca = go.Figure()
-    fig_pca.add_trace(
-        go.Contour(
-            x=grid_x,
-            y=grid_y,
-            z=zz,
-            colorscale=[[0, "rgba(0, 198, 255, 0.35)"], [0.5, "rgba(255, 255, 255, 0.1)"], [1, "rgba(57, 255, 20, 0.35)"]],
-            contours=dict(start=0.0, end=1.0, size=0.1, showlines=True),
-            colorbar=dict(title="P(Bulk)", tickfont=dict(color="#FFFFFF"), titlefont=dict(color="#FFFFFF")),
-            name="Decision Boundary",
-            hoverinfo="skip",
-        )
-    )
+            grid_x = np.linspace(x_min - pad_x, x_max + pad_x, 60)
+            grid_y = np.linspace(y_min - pad_y, y_max + pad_y, 60)
+            xx, yy = np.meshgrid(grid_x, grid_y)
+            grid_2d = np.c_[xx.ravel(), yy.ravel()]
+            grid_8d = scaler_pca.inverse_transform(pca.inverse_transform(grid_2d))
+            grid_df = pd.DataFrame(grid_8d, columns=FEATURE_COLS)
+            zz = np.clip(rf_pipeline.predict_proba(grid_df)[:, 1], 0.0, 1.0).reshape(xx.shape)
 
-    for label_name, color_hex in [("Bulk / Wholesale", "#39FF14"), ("Individual / Retail", "#00C6FF")]:
-        sub = sample_df[sample_df["Segment"] == label_name]
-        fig_pca.add_trace(
-            go.Scatter(
-                x=sub["PC1"],
-                y=sub["PC2"],
-                mode="markers",
-                name=label_name,
-                marker=dict(color=color_hex, size=6, opacity=0.75, line=dict(width=0.5, color="#000000")),
+            fig_pca = go.Figure()
+            fig_pca.add_trace(
+                go.Contour(
+                    x=grid_x,
+                    y=grid_y,
+                    z=zz,
+                    colorscale=[
+                        [0.0, "rgba(0, 198, 255, 0.35)"],
+                        [0.5, "rgba(255, 255, 255, 0.10)"],
+                        [1.0, "rgba(57, 255, 20, 0.35)"],
+                    ],
+                    contours=dict(start=0.0, end=1.0, size=0.1, showlines=True),
+                    colorbar=dict(
+                        title=dict(text="P(Bulk)", font=dict(color="#FFFFFF")),
+                        tickfont=dict(color="#FFFFFF"),
+                    ),
+                    name="Decision Boundary",
+                    hoverinfo="skip",
+                )
             )
-        )
 
-    var_exp = pca.explained_variance_ratio_ * 100
-    fig_pca.update_layout(
-        title=f"2D PCA Projection with Decision Boundary (Explained Variance: {var_exp[0]:.1f}% + {var_exp[1]:.1f}%)",
-        xaxis_title=f"Principal Component 1 ({var_exp[0]:.1f}%)",
-        yaxis_title=f"Principal Component 2 ({var_exp[1]:.1f}%)",
-        height=600,
-    )
-    fig_pca = apply_transparent_plotly(fig_pca)
-    st.plotly_chart(fig_pca, use_container_width=True)
+            for label_name, color_hex in [("Bulk / Wholesale", "#39FF14"), ("Individual / Retail", "#00C6FF")]:
+                sub = sample_df[sample_df["Segment"] == label_name]
+                fig_pca.add_trace(
+                    go.Scatter(
+                        x=sub["PC1"],
+                        y=sub["PC2"],
+                        mode="markers",
+                        name=label_name,
+                        marker=dict(color=color_hex, size=6, opacity=0.75, line=dict(width=0.5, color="#000000")),
+                    )
+                )
+
+            var_exp = pca.explained_variance_ratio_ * 100
+            fig_pca.update_layout(
+                title=f"2D PCA Projection with Decision Boundary (Explained Variance: {var_exp[0]:.1f}% + {var_exp[1]:.1f}%)",
+                xaxis_title=f"Principal Component 1 ({var_exp[0]:.1f}%)",
+                yaxis_title=f"Principal Component 2 ({var_exp[1]:.1f}%)",
+                height=600,
+            )
+            fig_pca = apply_transparent_plotly(fig_pca)
+            st.plotly_chart(fig_pca, width="stretch")
+    except Exception as exc:
+        st.error(f"Unable to render PCA decision boundary plot: {exc}")
 
 elif page == "🤖 Order Classifier":
     st.title("🤖 Real-Time E-Commerce Order Classifier")
@@ -644,4 +808,4 @@ elif page == "🤖 Order Classifier":
             )
             fig_gauge.update_layout(height=320, margin=dict(l=20, r=20, t=50, b=20))
             fig_gauge = apply_transparent_plotly(fig_gauge)
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            st.plotly_chart(fig_gauge, width="stretch")
